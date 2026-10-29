@@ -9,10 +9,9 @@ SECONDS_PER_DAY = 86_400
 PLAYER_COUNTS = [10_000, 100_000, 1_000_000]
 
 # Message Arrival Behavior:
-# Session starts mixed, gentle day/night wave (normal play) with a spike right after the reset (players rushing to use refreshed attacks).
-# TT2 has a global player base so it will span time zones, thus the wave is mild.
-DIURNAL_PEAK_TO_TROUGH = 1.5        # busiest hour vs quietest hour.
-DIURNAL_PEAK_HOUR = 12              # hours after reset to shift the wave.
+# TT2 has a global player base spread across time zones, so normal play is modeled as constant over the day.
+# The only peak is a spike right after the daily reset (players rushing to use refreshed attacks).
+# Spiked sessions start at reset + a random delay with this average.
 SPIKE_MEAN_DELAY_SECONDS = 20 * 60
 
 # Sessions:
@@ -22,27 +21,27 @@ SESSION_WINDOW_SECONDS = 20 * 60
 # Message Parameters:
 # Overhead (HTTP/TLS framing, auth) is once per message, so sending fewer messages saves more bandwidth than sending smaller ones.
 MSG_OVERHEAD_BYTES = 200
-REPORT_PAYLOAD_BYTES = 40 
-BATCH_PAYLOAD_BYTES = 48            # summed batch (value + count).
+REPORT_PAYLOAD_BYTES = 40           # one report
+BATCH_PAYLOAD_BYTES = 48            # one summed batch (value + count)
 
 
 @dataclass(frozen=True)
 class EventConfig:
     """
-    Things that can differ between events. 
-    The simulation code should be able to handle all three EventConfigs.
+    Everything that differs between events.
+    The simulation code is the same for all three, should just receive different EventConfig.
     """
     name: str
-    reports_min: int                # reports per player per day (all sessions combined), uniform in [min, max].
+    reports_min: int                # reports per player per DAY (all sessions combined), uniform in [min, max]
     reports_max: int
     sessions_per_player: int
-    spike_fraction: float           # share of session starts that fall in the reset spike.
+    spike_fraction: float           # share of session starts that fall in the reset spike
 
-    # For hardcore players who make extra reports packed into one short window (For Prestige Race only).
-    burst_fraction: float = 0.0     # share of players who are hardcore/grinders.
-    burst_min: int = 0              # extra reports per grinder.
-    burst_max: int = 0
-    burst_window_seconds: int = 60
+    # For hardcore players who play one longer session and make extra reports in it (For Prestige Race only).
+    grinder_fraction: float = 0.0   # share of players who are grinders
+    grinder_extra_min: int = 0      # extra reports per grinder
+    grinder_extra_max: int = 0
+    grinder_session_seconds: int = 0  # length of the grinder's long session
 
 
 EVENTS = {
@@ -57,7 +56,9 @@ EVENTS = {
 
     # Prestige Races:
     # Around 5 points/session and around 4 sessions a day when this event is live, so about 20 points/day total.
-    # Maybe 10% of players burst 5-10 extra points.
+    # reports_min/max are per DAY, so 15-25 (mean 20), not per session.
+    # Maybe 10% of players are grinders: they play one session of 30-40min (35min used) and pick up 5-10 extra points in it.
     "prestige": EventConfig("Prestige Races", 15, 25, 4, spike_fraction=0.0,
-                            burst_fraction=0.10, burst_min=5, burst_max=10),
+                            grinder_fraction=0.10, grinder_extra_min=5, grinder_extra_max=10,
+                            grinder_session_seconds=35 * 60),
 }

@@ -1,5 +1,5 @@
 """
-Workload generator: when does each player send a report?
+Workload generator:
 
 Produces one table with a row per report. All three methods receive the same
 table, so they are compared on identical player behavior.

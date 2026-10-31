@@ -1,5 +1,5 @@
 """
-Simulation Parameters
+Simulation Parameters.
 """
 
 from dataclasses import dataclass

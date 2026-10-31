@@ -1,6 +1,5 @@
 """
-Metrics: 
-What I will compare on.
+Metrics I will compare on in report.
 """
 
 import numpy as np

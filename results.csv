@@ -1,0 +1,10 @@
+event,players,method,reports,peak_msgs_per_s,total_messages,msgs_per_report,total_data_mb,staleness_mean_s,staleness_p95_s,pct_delivered
+Global Raids (Phase 3),10000,Method 1,30000,12,30000,1.0,7.2,0.0,0.0,100.0
+Global Raids (Phase 3),100000,Method 1,300000,57,300000,1.0,72.0,0.0,0.0,100.0
+Global Raids (Phase 3),1000000,Method 1,3000000,462,3000000,1.0,720.0,0.0,0.0,100.0
+Season Rankings,10000,Method 1,174752,11,174752,1.0,41.94048,0.0,0.0,100.0
+Season Rankings,100000,Method 1,1749982,44,1749982,1.0,419.99568,0.0,0.0,100.0
+Season Rankings,1000000,Method 1,17498128,272,17498128,1.0,4199.55072,0.0,0.0,100.0
+Prestige Races,10000,Method 1,207467,11,207467,1.0,49.79208,0.0,0.0,100.0
+Prestige Races,100000,Method 1,2074392,48,2074392,1.0,497.85408,0.0,0.0,100.0
+Prestige Races,1000000,Method 1,20751177,314,20751177,1.0,4980.28248,0.0,0.0,100.0

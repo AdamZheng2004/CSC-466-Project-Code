@@ -8,11 +8,11 @@ import time
 
 import config
 from workload import generate_reports
-from methods import method1
+from methods import method1, method2, method3
 from metrics import compute_metrics
 
 SEED = 42
-METHODS = {"Method 1": method1}
+METHODS = {"Method 1": method1, "Method 2": method2, "Method 3": method3}
 
 # Run everything. 
 # The same Reports table is shared by all methods for a given event and player count.
@@ -45,7 +45,7 @@ for event in config.EVENTS.values():
 # Save to a CSV for later plotting.
 # Might put plotting code here if not too crowded.
 with open("results.csv", "w", newline="") as f:
-    writer = csv.DictWriter(f, fieldnames=results[0].keys())
+    writer = csv.DictWriter(f, fieldnames=list(dict.fromkeys(k for r in results for k in r)))
     writer.writeheader()
     writer.writerows(results)
 print("\nSaved results.csv")

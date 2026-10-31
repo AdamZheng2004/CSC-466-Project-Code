@@ -49,8 +49,10 @@ def compute_metrics(delivery: Delivery, reports: Reports) -> dict:
         "pct_delivered": float(100 * arrived.mean()),
     }
 
-    # Total load across all regional servers.
+    # Busiest single regional server in its busiest second.
     if delivery.regional_msg_time is not None:
-        result["regional_peak_msgs_per_s"] = _peak_per_second(delivery.regional_msg_time)
+        slot = (delivery.regional_server.astype(np.int64) * config.SECONDS_PER_DAY
+                + delivery.regional_msg_time.astype(np.int64))
+        result["regional_peak_msgs_per_s"] = int(np.unique(slot, return_counts=True)[1].max())
 
     return result

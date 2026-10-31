@@ -20,10 +20,14 @@ SESSION_WINDOW_SECONDS = 20 * 60
 
 # Message Parameters:
 # Overhead (HTTP/TLS framing, auth) is once per message, so sending fewer messages saves more bandwidth than sending smaller ones.
+# My best guess is that a report's payload is 40 bytes (player id, session id, action time, action type, action value), add 8 for the batched to track count.
 MSG_OVERHEAD_BYTES = 200
-REPORT_PAYLOAD_BYTES = 40           # one report
-BATCH_PAYLOAD_BYTES = 48            # one summed batch (value + count)
+REPORT_PAYLOAD_BYTES = 40
+BATCH_PAYLOAD_BYTES = 48
 
+# For method3, the regional server flushes its reports to the central server every 5 seconds.
+PLAYERS_PER_REGIONAL_SERVER = 20_000
+FLUSH_INTERVAL_SECONDS = 5
 
 @dataclass(frozen=True)
 class EventConfig:

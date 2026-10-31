@@ -17,9 +17,10 @@ class Reports:
     Reports as parallel numpy arrays, sorted by time. 
     Using arrays because 1M players can produce ~20M reports.
     """
-    player_id: np.ndarray    # 0 .. N-1
-    session_id: np.ndarray   # unique per (player, session); Method 2 batches on this
-    action_time: np.ndarray  # seconds since reset
+    player_id: np.ndarray
+    session_id: np.ndarray   # Unique per (player, session), Method 2 will batch on this.
+    action_time: np.ndarray  # Seconds since reset.
+    n_players: int           # Player count of this run (Method 3 will use it to size the regional tier server).
 
     @property
     def count(self) -> int:
@@ -84,4 +85,5 @@ def generate_reports(event: EventConfig, n_players: int, seed: int) -> Reports:
         player_id=player[order].astype(np.int32),
         session_id=(player * S + session)[order].astype(np.int64),
         action_time=time[order],
+        n_players=n_players,
     )

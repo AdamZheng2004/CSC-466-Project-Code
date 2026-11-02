@@ -51,7 +51,7 @@ class EventConfig:
 EVENTS = {
     # Global Raids:
     # 3 attacks/day, done in one sitting. Global reset refreshes attacks for everyone. Assuming 25% of players rush in right after it.
-    "raids": EventConfig("Global Raids (Phase 3)", 3, 3, 1, spike_fraction=0.25),
+    "raids": EventConfig("Global Raids", 3, 3, 1, spike_fraction=0.25),
 
     # Season Rankings:
     # 15-20 point sources per day (each report is one source, worth ~5-10 points). Count varies in game with other active events.

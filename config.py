@@ -29,6 +29,26 @@ BATCH_PAYLOAD_BYTES = 48
 PLAYERS_PER_REGIONAL_SERVER = 20_000
 FLUSH_INTERVAL_SECONDS = 5
 
+# Seeds:
+# Every (event, player count, method) is run once per seed, then averaged.
+SEEDS = [42, 43, 44, 45, 46]
+
+# Method 2 data loss:
+# A device's batch only exists in memory until the session ends, so if the app dies first, the WHOLE session's reports are lost.
+# A session is lost if the player closes/swipes away the app before it sends, or if the game crashes mid-session.
+# Both numbers are my guesses (no real data), so they are worth varying in a sensitivity check.
+APP_CLOSED_BEFORE_SEND_PROB = 0.03   # per session
+CRASH_PROB = 0.01                    # per session
+
+# Method 3 regional server costs:
+# Each regional server has to process one incoming message per report, so the work moves to the regional tier instead of disappearing.
+# REGIONAL_SERVICE_RATE is how many incoming messages/s one regional server can process (a guess).
+# If arrivals exceed it, a backlog builds and reports wait in a queue before being aggregated.
+REGIONAL_SERVICE_RATE = 1_000
+# The extra network leg (regional -> central) that Methods 1 and 2 don't have.
+# The device -> regional leg is assumed to cost the same as device -> central, which is ignored for all methods.
+REGIONAL_FORWARD_SECONDS = 0.05
+
 @dataclass(frozen=True)
 class EventConfig:
     """

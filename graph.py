@@ -15,13 +15,14 @@ SUMMARY_CSV = "results_summary.csv"
 OUT_DIR = "graphs"
 
 EVENTS = ["Global Raids", "Season Rankings", "Prestige Races"]
-METHODS = ["Method 1", "Method 2", "Method 3"]
+METHODS = ["Method 1", "Method 2", "Method 3", "Method 4"]
 METHOD_LABELS = {
     "Method 1": "Method 1 (report per action)",
     "Method 2": "Method 2 (batch per session)",
     "Method 3": "Method 3 (regional servers)",
+    "Method 4": "Method 4 (adaptive 1 <-> 3)",
 }
-COLORS = {"Method 1": "#4C72B0", "Method 2": "#DD8452", "Method 3": "#55A868"}
+COLORS = {"Method 1": "#4C72B0", "Method 2": "#DD8452", "Method 3": "#55A868", "Method 4": "#8172B3"}
 
 
 def load_summary(path):
@@ -148,7 +149,7 @@ def tradeoff_scatter(data, players):
         ax.grid(alpha=0.3)
     axes[0].set_ylabel("Peak central msgs/s (log)")
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False)
+    fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
     fig.suptitle(f"Load vs timeliness trade-off at {fmt_players(players)} players (lower-left is better)", fontsize=13)
     fig.tight_layout(rect=(0, 0.07, 1, 0.95))
     path = os.path.join(OUT_DIR, f"tradeoff_{fmt_players(players)}.png")

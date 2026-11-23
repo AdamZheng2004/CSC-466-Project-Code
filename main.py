@@ -11,10 +11,10 @@ import numpy as np
 
 import config
 from workload import generate_reports
-from methods import method1, method2, method3
+from methods import method1, method2, method3, method4
 from metrics import compute_metrics
 
-METHODS = {"Method 1": method1, "Method 2": method2, "Method 3": method3}
+METHODS = {"Method 1": method1, "Method 2": method2, "Method 3": method3, "Method 4": method4}
 
 
 def write_csv(path, rows):

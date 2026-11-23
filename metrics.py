@@ -76,6 +76,10 @@ def compute_metrics(delivery: Delivery, reports: Reports) -> dict:
         system_msgs += delivery.regional_msgs
         system_mb += regional_mb
 
+    # Method 4 only: how much of the traffic went through the regional tier.
+    if delivery.pct_reports_aggregated is not None:
+        result["pct_reports_aggregated"] = delivery.pct_reports_aggregated
+
     result["system_total_messages"] = system_msgs
     result["system_total_data_mb"] = system_mb
     return result

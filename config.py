@@ -49,6 +49,16 @@ REGIONAL_SERVICE_RATE = 1_000
 # The device -> regional leg is assumed to cost the same as device -> central, which is ignored for all methods.
 REGIONAL_FORWARD_SECONDS = 0.05
 
+# Method 4 (adaptive): sends reports straight to the central server (Method 1) until load gets high, then routes through regional servers (Method 3).
+# CENTRAL_CAPACITY_MSGS_PER_S is a guess at what the central server can comfortably handle. It is scaled to this simulation's load
+# (offered load peaks at roughly 10-460 reports/s), NOT to a real production number, so it is worth varying in a sensitivity check.
+# The controller switches to regional servers above HIGH_FRAC of capacity and back below LOW_FRAC (two thresholds so it doesn't flap).
+# It reacts to load measured LAG seconds ago, since a real controller can't see the present instantly.
+CENTRAL_CAPACITY_MSGS_PER_S = 300
+ADAPT_HIGH_FRAC = 0.70
+ADAPT_LOW_FRAC = 0.50
+ADAPT_LAG_SECONDS = 5
+
 @dataclass(frozen=True)
 class EventConfig:
     """

@@ -23,7 +23,7 @@ Code repository for my CSC 466 Networking Class. Simulating different types of t
 ## Files
 - config.py: all simulation parameters and the three event definitions (Global Raids, Season Rankings, Prestige Races)
 - workload.py: generates the stream of player reports for one day
-- methods.py: the three aggregation methods (Method 1: report per action, Method 2: batch per session, Method 3: regional servers)
+- methods.py: the four aggregation methods (Method 1: report per action, Method 2: batch per session, Method 3: regional servers, Method 4: adaptive switching between Methods 1 and 3)
 - metrics.py: computes central-server load, timeliness, accuracy, and regional-tier cost
 - main.py: runs all scenarios and writes the CSVs
 - graph.py: plots the results
@@ -36,6 +36,7 @@ Code repository for my CSC 466 Networking Class. Simulating different types of t
 - Load vs timeliness trade-off at the largest player count
 
 ## Modelling assumptions worth knowing (all tunable in config.py)
+- Method 4 sends reports straight to the central server until offered load passes ADAPT_HIGH_FRAC of CENTRAL_CAPACITY_MSGS_PER_S, then routes them through the regional servers until load drops below ADAPT_LOW_FRAC. It reacts to load from ADAPT_LAG_SECONDS ago. The capacity is scaled to this simulation's load, not a real production number.
 - Method 2 loses a whole session's batch if the app is closed before sending or the game crashes (APP_CLOSED_BEFORE_SEND_PROB, CRASH_PROB).
 - Method 3 tracks the regional tier's own load (messages/s per regional server, queueing delay if it is overloaded, REGIONAL_SERVICE_RATE) and the extra regional -> central network leg (REGIONAL_FORWARD_SECONDS). `system_total_messages` adds the regional tier's messages to the central server's so Method 3's savings are not counted as free.
 - Many parameters (loss probabilities, service rate, session behaviour) are my own estimates rather than measured data.

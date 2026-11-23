@@ -32,6 +32,9 @@ class Delivery:
     regional_max_queue_delay_s: Optional[float] = None   # Longest a report waited in a regional server's queue.
     regional_mean_queue_delay_s: Optional[float] = None  # Average queue wait per report.
 
+    # Method 4 only: share of reports that were routed through the regional tier (None for Methods 1-3).
+    pct_reports_aggregated: Optional[float] = None
+
 
 def method1(reports: Reports, rng=None) -> Delivery:
     """
@@ -165,3 +168,63 @@ def method3(reports: Reports, rng=None) -> Delivery:
                     regional_peak_msgs_per_s=regional_peak,
                     regional_max_queue_delay_s=float(queue_delay.max()),
                     regional_mean_queue_delay_s=float(queue_delay.mean()))
+
+
+def method4(reports: Reports, rng=None) -> Delivery:
+    """
+    Method 4 (adaptive):
+
+    Reports go straight to the central server (Method 1) while load is low. When the offered load (reports per second) rises above
+    ADAPT_HIGH_FRAC of the central server's capacity, new reports go through the regional servers instead (Method 3). It switches back
+    once load falls below ADAPT_LOW_FRAC. The controller sees the load from ADAPT_LAG_SECONDS ago, not the present.
+
+    Each report is committed to one path when it is made, so a switch never loses or double-counts a report.
+    Method 2 is left out of the switching: it holds reports on the device until the session ends, so it can't be toggled mid-session.
+    """
+    horizon = config.SECONDS_PER_DAY
+    second = reports.action_time.astype(np.int64)
+    offered = np.bincount(second, minlength=horizon)
+
+    high = config.ADAPT_HIGH_FRAC * config.CENTRAL_CAPACITY_MSGS_PER_S
+    low = config.ADAPT_LOW_FRAC * config.CENTRAL_CAPACITY_MSGS_PER_S
+
+    # Decide the mode for every second of the day.
+    aggregate = np.zeros(horizon, dtype=bool)
+    on = False
+    for t in range(horizon):
+        seen = offered[max(0, t - config.ADAPT_LAG_SECONDS)]
+        if not on and seen > high:
+            on = True
+        elif on and seen < low:
+            on = False
+        aggregate[t] = on
+
+    via_regional = aggregate[second]
+
+    # Never switched: identical to Method 1.
+    if not via_regional.any():
+        d = method1(reports)
+        d.pct_reports_aggregated = 0.0
+        return d
+
+    def subset(mask):
+        return Reports(player_id=reports.player_id[mask], session_id=reports.session_id[mask],
+                       action_time=reports.action_time[mask], n_players=reports.n_players)
+
+    d1 = method1(subset(~via_regional))
+    d3 = method3(subset(via_regional))
+
+    report_delivery_time = np.empty(reports.count)
+    report_delivery_time[~via_regional] = d1.report_delivery_time
+    report_delivery_time[via_regional] = d3.report_delivery_time
+
+    return Delivery(np.concatenate([d1.msg_time, d3.msg_time]),
+                    np.concatenate([d1.msg_reports, d3.msg_reports]),
+                    np.concatenate([d1.msg_bytes, d3.msg_bytes]),
+                    report_delivery_time,
+                    regional_servers=d3.regional_servers,
+                    regional_msgs=d3.regional_msgs,
+                    regional_peak_msgs_per_s=d3.regional_peak_msgs_per_s,
+                    regional_max_queue_delay_s=d3.regional_max_queue_delay_s,
+                    regional_mean_queue_delay_s=d3.regional_mean_queue_delay_s,
+                    pct_reports_aggregated=float(100 * via_regional.mean()))
